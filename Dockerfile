@@ -1,19 +1,15 @@
-FROM python:3.11-slim
+FROM rockylinux:9
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    WORKDIR=/app
+# Install Python and dependencies on Rocky Linux
+RUN dnf install -y python3 python3-pip && \
+    dnf clean all
 
-WORKDIR ${WORKDIR}
+WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN useradd -m appuser && chown -R appuser:appuser /app
-USER appuser
-
 EXPOSE 5000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["python3", "app.py"]
